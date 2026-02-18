@@ -5,8 +5,11 @@ import com.bmw.maintenance.domain.TaskStatus;
 import com.bmw.maintenance.domain.TaskType;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.literal.NamedLiteral;
 
 /**
  * Service for creating and managing maintenance tasks.
@@ -15,14 +18,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class MaintenanceTaskService {
 
     private final MaintenanceTasks maintenanceTasks;
+    private final Instance<TaskFactory> taskFactories;
 
     /**
      * Creates a new service instance.
      *
      * @param maintenanceTasks backing repository
      */
-    public MaintenanceTaskService(MaintenanceTasks maintenanceTasks) {
+    public MaintenanceTaskService(MaintenanceTasks maintenanceTasks,  Instance<TaskFactory> taskFactories) {
+
         this.maintenanceTasks = maintenanceTasks;
+        this.taskFactories =  taskFactories;
     }
 
     /**
@@ -33,11 +39,9 @@ public class MaintenanceTaskService {
      * @param notes optional notes
      * @return created task id
      */
-    public Long createTask(String vin, TaskType type, String notes) {
-        MaintenanceTask task = switch (type) {
-            case OIL_CHANGE -> MaintenanceTask.createOilChange(vin, notes);
-            case BRAKE_INSPECTION -> MaintenanceTask.createBrakeInspection(vin, notes);
-        };
+    public Long createTask(String vin, TaskType type, String notes, Map<String, Object> data) {
+        TaskFactory taskFactory = taskFactories.select(NamedLiteral.of(type.name())).get();
+        MaintenanceTask task = taskFactory.createTask(vin, notes, data);
 
         MaintenanceTask created = maintenanceTasks.create(task);
         return created.getTaskId();

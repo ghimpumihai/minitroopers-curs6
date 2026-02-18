@@ -40,6 +40,24 @@ paths:
                   vin: "WBA3B5C50DF123456"
                   type: "BRAKE_INSPECTION"
                   notes: "Annual brake inspection"
+              diagnosticScan:
+                summary: Diagnostic Scan Task
+                value:
+                  vin: "WBA3B5C50DF123456"
+                  type: "DIAGNOSTIC_SCAN"
+                  notes: "Engine warning light on"
+                  additionalData:
+                    errorCodes: [ "P0420", "P0301" ]
+                    scannerType: "ADVANCED"
+              tireService:
+                summary: Tire Service Task
+                value:
+                  vin: "WBA3B5C50DF123456"
+                  type: "TIRE_SERVICE"
+                  notes: "Rotate all four tires"
+                  additionalData:
+                    tirePosition: "FRONT_LEFT"
+
       responses:
         '201':
           description: Task created successfully

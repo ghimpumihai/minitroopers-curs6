@@ -4,6 +4,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.jboss.jandex.Main;
+
+import java.util.List;
 
 /**
  * Domain entity representing a maintenance task for a vehicle.
@@ -25,6 +28,9 @@ public class MaintenanceTask {
     private String vin;
     private TaskType type;
     private TaskStatus status;
+    private List<String> errorCodes;
+    private ScannerType scannerType;
+    private TirePosition tirePosition;
     private String notes;
 
 
@@ -66,6 +72,31 @@ public class MaintenanceTask {
         return task;
     }
 
+    public static MaintenanceTask createDiagnosticScan(String vin, String notes, List<String> errorCodes, ScannerType scannerType) {
+        MaintenanceTask task = MaintenanceTask.builder()
+                .vin(vin)
+                .type(TaskType.DIAGNOSTIC_SCAN)
+                .status(TaskStatus.IN_PROGRESS)
+                .notes(notes)
+                .errorCodes(errorCodes)
+                .scannerType(scannerType)
+                .build();
+        task.validateBusinessRules();
+        return task;
+    }
+
+    public static MaintenanceTask createTireChange(String vin, String notes, TirePosition tirePosition) {
+        MaintenanceTask task = MaintenanceTask.builder()
+                .vin(vin)
+                .type(TaskType.TIRE_SERVICE)
+                .status(TaskStatus.IN_PROGRESS)
+                .notes(notes)
+                .tirePosition(tirePosition)
+                .build();
+        task.validateBusinessRules();
+        return task;
+    }
+
     /**
      * Reconstitutes a task from persisted state without applying business rules.
      *
@@ -76,13 +107,16 @@ public class MaintenanceTask {
      * @param notes  optional notes for the task
      * @return a \`MaintenanceTask\` populated from stored values
      */
-    public static MaintenanceTask reconstitute(Long taskId, String vin, TaskType type, TaskStatus status, String notes) {
+    public static MaintenanceTask reconstitute(Long taskId, String vin, TaskType type, TaskStatus status, String notes,List<String> errorCodes, ScannerType scannerType, TirePosition tirePosition) {
         return MaintenanceTask.builder()
                 .taskId(taskId)
                 .vin(vin)
                 .type(type)
                 .status(status)
                 .notes(notes)
+                .errorCodes(errorCodes)
+                .scannerType(scannerType)
+                .tirePosition(tirePosition)
                 .build();
     }
 
